@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 return [
+    'enabled' => env('TRACING_ENABLED', true),
+
     'host' => env('TRACING_HOST', 'jaeger.local'),
 
     'port' => env('TRACING_PORT', 6831),

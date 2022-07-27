@@ -2,11 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Romanpravda\Laravel\Tracing\Interfaces;
+namespace Romanpravda\Laravel\Tracing\Services;
 
+use OpenTelemetry\API\Trace\AbstractSpan;
 use OpenTelemetry\Context\Context;
+use Romanpravda\Laravel\Tracing\Interfaces\SpanInterface;
+use Romanpravda\Laravel\Tracing\Interfaces\TracingServiceInterface;
+use Romanpravda\Laravel\Tracing\Span;
 
-interface TracingServiceInterface
+final class NoopTracingService implements TracingServiceInterface
 {
     /**
      * Starting span for trace.
@@ -18,21 +22,30 @@ interface TracingServiceInterface
      *
      * @return \Romanpravda\Laravel\Tracing\Interfaces\SpanInterface
      */
-    public function startSpan(string $spanName, Context $context, int $spanKind, ?float $timestamp = null): SpanInterface;
+    public function startSpan(string $spanName, Context $context, int $spanKind, ?float $timestamp = null): SpanInterface
+    {
+        return new Span(AbstractSpan::getInvalid());
+    }
 
     /**
      * Check for current span existence.
      *
      * @return bool
      */
-    public function hasCurrentSpan(): bool;
+    public function hasCurrentSpan(): bool
+    {
+        return false;
+    }
 
     /**
      * Retrieving current span.
      *
      * @return \Romanpravda\Laravel\Tracing\Interfaces\SpanInterface|null
      */
-    public function getCurrentSpan(): ?SpanInterface;
+    public function getCurrentSpan(): ?SpanInterface
+    {
+        return null;
+    }
 
     /**
      * Ending current span.
@@ -41,7 +54,9 @@ interface TracingServiceInterface
      *
      * @return void
      */
-    public function endCurrentSpan(?int $timestamp = null): void;
+    public function endCurrentSpan(?int $timestamp = null): void
+    {
+    }
 
     /**
      * Writing context to given data.
@@ -51,7 +66,9 @@ interface TracingServiceInterface
      *
      * @return void
      */
-    public function inject(Context $context, &$carrier): void;
+    public function inject(Context $context, &$carrier): void
+    {
+    }
 
     /**
      * Retrieving context from given data.
@@ -60,14 +77,19 @@ interface TracingServiceInterface
      *
      * @return \OpenTelemetry\Context\Context
      */
-    public function extract($carrier): Context;
+    public function extract($carrier): Context
+    {
+        return Context::getCurrent();
+    }
 
     /**
      * Stopping current trace.
      *
      * @return void
      */
-    public function stop(): void;
+    public function stop(): void
+    {
+    }
 
     /**
      * Filtering and hiding headers.
@@ -76,7 +98,10 @@ interface TracingServiceInterface
      *
      * @return array
      */
-    public function filterHeaders(array $headers = []): array;
+    public function filterHeaders(array $headers = []): array
+    {
+        return $headers;
+    }
 
     /**
      * Filtering and hiding input data.
@@ -85,7 +110,10 @@ interface TracingServiceInterface
      *
      * @return array
      */
-    public function filterInput(array $input = []): array;
+    public function filterInput(array $input = []): array
+    {
+        return $input;
+    }
 
     /**
      * Transforming headers.
@@ -94,5 +122,8 @@ interface TracingServiceInterface
      *
      * @return string
      */
-    public function transformedHeaders(array $headers = []): string;
+    public function transformedHeaders(array $headers = []): string
+    {
+        return '';
+    }
 }

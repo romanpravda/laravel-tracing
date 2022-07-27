@@ -7,12 +7,13 @@ namespace Romanpravda\Laravel\Tracing\Services;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use OpenTelemetry\API\Trace\SpanContextKey;
-use OpenTelemetry\API\Trace\SpanInterface;
 use OpenTelemetry\API\Trace\TracerInterface;
 use OpenTelemetry\API\Trace\TracerProviderInterface;
 use OpenTelemetry\Context\Context;
 use OpenTelemetry\Context\Propagation\TextMapPropagatorInterface;
+use Romanpravda\Laravel\Tracing\Interfaces\SpanInterface;
 use Romanpravda\Laravel\Tracing\Interfaces\TracingServiceInterface;
+use Romanpravda\Laravel\Tracing\Span;
 
 final class TracingService implements TracingServiceInterface
 {
@@ -24,11 +25,11 @@ final class TracingService implements TracingServiceInterface
     private TracerInterface $tracer;
 
     /**
-     * The root span.
+     * The current span.
      *
-     * @var \OpenTelemetry\API\Trace\SpanInterface|null
+     * @var \Romanpravda\Laravel\Tracing\Interfaces\SpanInterface|null
      */
-    private ?SpanInterface $rootSpan = null;
+    private ?SpanInterface $currentSpan = null;
 
     /**
      * TracingService constructor.
@@ -55,7 +56,7 @@ final class TracingService implements TracingServiceInterface
      * @param int $spanKind
      * @param float|null $timestamp
      *
-     * @return \OpenTelemetry\API\Trace\SpanInterface
+     * @return \Romanpravda\Laravel\Tracing\Interfaces\SpanInterface
      */
     public function startSpan(string $spanName, Context $context, int $spanKind, ?float $timestamp = null): SpanInterface
     {
@@ -63,39 +64,59 @@ final class TracingService implements TracingServiceInterface
         if (!is_null($timestamp)) {
             $spanBuilder->setStartTimestamp((int) $timestamp);
         }
-        if (is_null($context->get(SpanContextKey::instance()))) {
+        if ($this->hasCurrentSpan()) {
+            $parentContext = $this->getCurrentSpan()?->getCurrent()->storeInContext($context);
+            $spanBuilder->setParent($parentContext);
+        } elseif (is_null($context->get(SpanContextKey::instance()))) {
             $spanBuilder->setNoParent();
         } else {
             $spanBuilder->setParent($context);
         }
-        $span = $spanBuilder->startSpan();
-        $span->setAttribute('service.major', Arr::get($this->tracingConfig, 'service-name', 'jaeger'));
+        $baseSpan = $spanBuilder->startSpan();
+        $baseSpan->setAttribute('service.major', Arr::get($this->tracingConfig, 'service-name', 'jaeger'));
 
-        if (!$this->hasRootSpan()) {
-            $this->rootSpan = $span;
-        }
+        $span = new Span($baseSpan, $this->getCurrentSpan());
+        $this->currentSpan = $span;
 
         return $span;
     }
 
     /**
-     * Check for root span's existence.
+     * Check for current span existence.
      *
      * @return bool
      */
-    public function hasRootSpan(): bool
+    public function hasCurrentSpan(): bool
     {
-        return !is_null($this->rootSpan);
+        return !is_null($this->currentSpan);
     }
 
     /**
-     * Retrieving root span.
+     * Retrieving current span.
      *
-     * @return \OpenTelemetry\API\Trace\SpanInterface|null
+     * @return \Romanpravda\Laravel\Tracing\Interfaces\SpanInterface|null
      */
-    public function getRootSpan(): ?SpanInterface
+    public function getCurrentSpan(): ?SpanInterface
     {
-        return $this->rootSpan;
+        return $this->currentSpan;
+    }
+
+    /**
+     * Ending current span.
+     *
+     * @param int|null $timestamp
+     *
+     * @return void
+     */
+    public function endCurrentSpan(?int $timestamp = null): void
+    {
+        if (!$this->hasCurrentSpan()) {
+            return;
+        }
+
+        $parentSpan = $this->getCurrentSpan()?->getParent();
+        $this->getCurrentSpan()?->getCurrent()->end($timestamp);
+        $this->currentSpan = $parentSpan;
     }
 
     /**
@@ -130,9 +151,8 @@ final class TracingService implements TracingServiceInterface
      */
     public function stop(): void
     {
-        if ($this->hasRootSpan()) {
-            $this->rootSpan->end();
-            $this->rootSpan = null;
+        while ($this->hasCurrentSpan()) {
+            $this->endCurrentSpan();
         }
     }
 

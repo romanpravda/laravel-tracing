@@ -19,6 +19,7 @@ use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
 use OpenTelemetry\SDK\Trace\TracerProvider;
 use Romanpravda\Laravel\Tracing\Exporters\JaegerAgentExporter;
 use Romanpravda\Laravel\Tracing\Interfaces\TracingServiceInterface;
+use Romanpravda\Laravel\Tracing\Services\NoopTracingService;
 use Romanpravda\Laravel\Tracing\Services\TracingService;
 
 final class TracingServiceProvider extends ServiceProvider
@@ -39,6 +40,10 @@ final class TracingServiceProvider extends ServiceProvider
             /** @var \Illuminate\Contracts\Config\Repository $configRepository */
             $configRepository = $app->make(Repository::class);
             $tracingConfig = $configRepository->get('tracing');
+
+            if (Arr::get($tracingConfig, 'enabled', false)) {
+                return new NoopTracingService();
+            }
 
             $agentHost = Arr::get($tracingConfig, 'host');
             $agentPort = Arr::get($tracingConfig, 'port');
@@ -69,20 +74,19 @@ final class TracingServiceProvider extends ServiceProvider
             $endTime = ClockFactory::getDefault()->now();
             $duration = (int) round($query->time * 1000000);
 
-            $rootSpanContext = $tracer->getRootSpan()?->storeInContext(Context::getCurrent());
-            $span = $tracer->startSpan($query->sql, $rootSpanContext, SpanKind::KIND_INTERNAL, $endTime - $duration);
-            $span->setAttribute('query.connection', $query->connectionName);
-            $span->setAttribute('query.query', $query->sql);
-            $span->setAttribute('service.minor', $query->connectionName);
+            $span = $tracer->startSpan($query->sql, Context::getCurrent(), SpanKind::KIND_INTERNAL, $endTime - $duration);
+            $span->getCurrent()->setAttribute('query.connection', $query->connectionName);
+            $span->getCurrent()->setAttribute('query.query', $query->sql);
+            $span->getCurrent()->setAttribute('service.minor', $query->connectionName);
 
             if ($query->bindings !== [] && $config->get('app.debug') === true) {
                 $bindings = implode(',', $query->bindings);
-                $span->setAttribute('query.bindings', $bindings);
+                $span->getCurrent()->setAttribute('query.bindings', $bindings);
             }
 
-            $spanScope = $span->activate();
+            $spanScope = $span->getCurrent()->activate();
 
-            $span->end($endTime);
+            $tracer->endCurrentSpan($endTime);
             $spanScope->detach();
         });
     }
