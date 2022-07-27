@@ -43,7 +43,7 @@ final class TracingServiceProvider extends ServiceProvider
             $configRepository = $app->make(Repository::class);
             $tracingConfig = $configRepository->get('tracing');
 
-            if (Arr::get($tracingConfig, 'enabled', false)) {
+            if (!Arr::get($tracingConfig, 'enabled', false)) {
                 return new NoopTracingService();
             }
 

@@ -44,9 +44,23 @@ final class ClientTracingService implements ClientTracingServiceInterface
     public function injectSpanContextIntoHeaders(array $headers = []): array
     {
         $context = $this->tracingService->getCurrentSpan()?->getCurrent()->storeInContext(Context::getCurrent());
-        $this->tracingService->inject($context, $headers);
+        if (!is_null($context)) {
+            $this->tracingService->inject($context, $headers);
+        }
 
         return $headers;
+    }
+
+    /**
+     * Adding minor service name to current span.
+     *
+     * @param string $name
+     *
+     * @return void
+     */
+    public function addMinorServiceNameToCurrentSpan(string $name): void
+    {
+        $this->tracingService->getCurrentSpan()->getCurrent()->setAttribute('service.minor', $name);
     }
 
     /**
