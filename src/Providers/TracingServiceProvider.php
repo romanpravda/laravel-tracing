@@ -35,7 +35,7 @@ final class TracingServiceProvider extends ServiceProvider
             'tracing'
         );
 
-        $this->app->bind(TracingServiceInterface::class, static function (Application $app) {
+        $this->app->singleton(TracingServiceInterface::class, static function (Application $app) {
             /** @var \Illuminate\Contracts\Config\Repository $configRepository */
             $configRepository = $app->make(Repository::class);
             $tracingConfig = $configRepository->get('tracing');
