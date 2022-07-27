@@ -18,7 +18,9 @@ use OpenTelemetry\SDK\Trace\Sampler\AlwaysOnSampler;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
 use OpenTelemetry\SDK\Trace\TracerProvider;
 use Romanpravda\Laravel\Tracing\Exporters\JaegerAgentExporter;
+use Romanpravda\Laravel\Tracing\Interfaces\ClientTracingServiceInterface;
 use Romanpravda\Laravel\Tracing\Interfaces\TracingServiceInterface;
+use Romanpravda\Laravel\Tracing\Services\ClientTracingService;
 use Romanpravda\Laravel\Tracing\Services\NoopTracingService;
 use Romanpravda\Laravel\Tracing\Services\TracingService;
 
@@ -57,6 +59,13 @@ final class TracingServiceProvider extends ServiceProvider
             $propagator = TraceContextPropagator::getInstance();
 
             return new TracingService($tracerProvider, $propagator, $tracingConfig);
+        });
+
+        $this->app->bind(ClientTracingServiceInterface::class, static function (Application $app) {
+            /** @var \Romanpravda\Laravel\Tracing\Interfaces\TracingServiceInterface $tracingService */
+            $tracingService = $app->make(TracingServiceInterface::class);
+
+            return new ClientTracingService($tracingService);
         });
 
         $this->registerQueryListener();
