@@ -8,7 +8,6 @@ use Closure;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use OpenTelemetry\API\Trace\Propagation\TraceContextPropagator;
 use OpenTelemetry\API\Trace\SpanInterface;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\Context\ScopeInterface;
@@ -56,29 +55,25 @@ final class TraceRequests
      */
     public function handle(Request $request, Closure $next): mixed
     {
-        $context = TraceContextPropagator::getInstance()->extract($request->headers->all());
+        $context = $this->tracingService->extract($request->headers->all());
         $span = $this->tracingService->startSpan($request->url(), $context, SpanKind::KIND_SERVER);
-        $span->setAttribute('service', 'reports-service');
+        $span->setAttribute('service.minor', 'http');
         $this->parseRequestForSpan($span, $request);
         $this->spanScope = $span->activate();
-        $this->span = $span;
+        $spanScope = $span->activate();
 
-        return $next($request);
-    }
+        $response = $next($request);
 
-    public function terminate(Request $request, $response): void
-    {
-        if ($response instanceof JsonResponse && !is_null($this->span)) {
-            $this->parseResponseForSpan($this->span, $request, $response);
-            $this->setSpanStatus($this->span, $response->getStatusCode());
+        if ($response instanceof JsonResponse) {
+            $this->parseResponseForSpan($span, $request, $response);
+            $this->setSpanStatus($span, $response->getStatusCode());
         }
 
+        $spanScope?->detach();
+        $span->end();
         $this->tracingService->stop();
-        $this->spanScope?->detach();
-        $this->span->end();
 
-        $this->spanScope = null;
-        $this->span = null;
+        return $response;
     }
 
     /**

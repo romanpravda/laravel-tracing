@@ -17,6 +17,13 @@ use Romanpravda\Laravel\Tracing\Interfaces\TracingServiceInterface;
 final class TracingService implements TracingServiceInterface
 {
     /**
+     * Base tracer service.
+     *
+     * @var \OpenTelemetry\API\Trace\TracerInterface
+     */
+    private TracerInterface $tracer;
+
+    /**
      * The root span.
      *
      * @var \OpenTelemetry\API\Trace\SpanInterface|null
@@ -27,16 +34,17 @@ final class TracingService implements TracingServiceInterface
      * TracingService constructor.
      *
      * @param \OpenTelemetry\API\Trace\TracerProviderInterface $tracerProvider
-     * @param \OpenTelemetry\API\Trace\TracerInterface $tracer
      * @param \OpenTelemetry\Context\Propagation\TextMapPropagatorInterface $propagator
      * @param array $tracingConfig
      */
     public function __construct(
         private readonly TracerProviderInterface $tracerProvider,
-        private readonly TracerInterface $tracer,
         private readonly TextMapPropagatorInterface $propagator,
         private readonly array $tracingConfig = [],
     ) {
+        $serviceName = Arr::get($this->tracingConfig, 'service-name', 'jaeger');
+
+        $this->tracer = $this->tracerProvider->getTracer($serviceName);
     }
 
     /**
@@ -61,6 +69,7 @@ final class TracingService implements TracingServiceInterface
             $spanBuilder->setParent($context);
         }
         $span = $spanBuilder->startSpan();
+        $span->setAttribute('service.major', Arr::get($this->tracingConfig, 'service-name', 'jaeger'));
 
         if (!$this->hasRootSpan()) {
             $this->rootSpan = $span;
