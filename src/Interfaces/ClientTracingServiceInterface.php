@@ -25,6 +25,15 @@ interface ClientTracingServiceInterface
     public function injectSpanContextIntoHeaders(array $headers = []): array;
 
     /**
+     * Adding minor service name to current span.
+     *
+     * @param string $name
+     *
+     * @return void
+     */
+    public function addMinorServiceNameToCurrentSpan(string $name): void;
+
+    /**
      * Adding request headers to current span.
      *
      * @param array $headers
