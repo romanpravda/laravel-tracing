@@ -48,11 +48,10 @@ final class TracingServiceProvider extends ServiceProvider
 
             $exporter = new JaegerAgentExporter($serviceName, $agentHostPort);
             $tracerProvider = (new TracerProvider(new SimpleSpanProcessor($exporter), new AlwaysOnSampler()));
-            $tracer = $tracerProvider->getTracer($serviceName);
 
             $propagator = TraceContextPropagator::getInstance();
 
-            return new TracingService($tracerProvider, $tracer, $propagator, $tracingConfig);
+            return new TracingService($tracerProvider, $propagator, $tracingConfig);
         });
 
         $this->registerQueryListener();
