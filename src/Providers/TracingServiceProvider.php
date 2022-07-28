@@ -76,6 +76,11 @@ class TracingServiceProvider extends ServiceProvider
         $this->registerQueryListener();
     }
 
+    /**
+     * Register DB Query listener.
+     *
+     * @return void
+     */
     public function registerQueryListener(): void
     {
         DB::listen(function (QueryExecuted $query) {
@@ -100,5 +105,12 @@ class TracingServiceProvider extends ServiceProvider
 
             $tracer->endCurrentSpan($endTime);
         });
+    }
+
+    public function boot(): void
+    {
+        $this->publishes([
+            __DIR__ . '/../../dist/config/tracing.php' => config_path('tracing.php'),
+        ]);
     }
 }
