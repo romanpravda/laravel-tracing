@@ -15,6 +15,7 @@ use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\Context\Context;
 use OpenTelemetry\SDK\Common\Time\ClockFactory;
 use OpenTelemetry\SDK\Trace\Sampler\AlwaysOnSampler;
+use OpenTelemetry\SDK\Trace\Sampler\TraceIdRatioBasedSampler;
 use OpenTelemetry\SDK\Trace\SpanProcessor\SimpleSpanProcessor;
 use OpenTelemetry\SDK\Trace\TracerProvider;
 use Romanpravda\Laravel\Tracing\Exporters\JaegerAgentExporter;
@@ -53,8 +54,15 @@ final class TracingServiceProvider extends ServiceProvider
 
             $serviceName = Arr::get($tracingConfig, 'service-name', 'jaeger');
 
+            if (Arr::get($tracingConfig, 'sampling.type', 'const') === 'probabilistic') {
+                $rate = (float) Arr::get($tracingConfig, 'sampling.rate', 0.5);
+                $sampler = new TraceIdRatioBasedSampler($rate);
+            } else {
+                $sampler = new AlwaysOnSampler();
+            }
+
             $exporter = new JaegerAgentExporter($serviceName, $agentHostPort);
-            $tracerProvider = (new TracerProvider(new SimpleSpanProcessor($exporter), new AlwaysOnSampler()));
+            $tracerProvider = (new TracerProvider(new SimpleSpanProcessor($exporter), $sampler));
 
             $propagator = TraceContextPropagator::getInstance();
 
@@ -71,6 +79,11 @@ final class TracingServiceProvider extends ServiceProvider
         $this->registerQueryListener();
     }
 
+    /**
+     * Register DB Query listener.
+     *
+     * @return void
+     */
     private function registerQueryListener(): void
     {
         DB::listen(function (QueryExecuted $query) {
@@ -98,5 +111,12 @@ final class TracingServiceProvider extends ServiceProvider
             $tracer->endCurrentSpan($endTime);
             $spanScope->detach();
         });
+    }
+
+    public function boot(): void
+    {
+        $this->publishes([
+            __DIR__ . '/../../dist/config/tracing.php' => config_path('tracing.php'),
+        ]);
     }
 }
