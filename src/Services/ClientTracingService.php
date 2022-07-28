@@ -40,15 +40,14 @@ class ClientTracingService implements ClientTracingServiceInterface
     /**
      * Inject current span context into headers.
      *
-     * @param string $format
      * @param array $headers
      *
      * @return array
      */
-    public function injectSpanContextIntoHeaders(string $format, array $headers = []): array
+    public function injectSpanContextIntoHeaders(array $headers = []): array
     {
         $context = $this->tracingService->hasCurrentSpan() ? $this->tracingService->getCurrentSpan()->getCurrent()->getContext() : null;
-        $this->tracingService->inject($context, $format, $headers);
+        $this->tracingService->inject($context, \OpenTracing\Formats\TEXT_MAP, $headers);
 
         return $headers;
     }

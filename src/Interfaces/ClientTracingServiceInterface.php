@@ -16,12 +16,11 @@ interface ClientTracingServiceInterface
     /**
      * Inject current span context into headers.
      *
-     * @param string $format
      * @param array $headers
      *
      * @return array
      */
-    public function injectSpanContextIntoHeaders(string $format, array $headers = []): array;
+    public function injectSpanContextIntoHeaders(array $headers = []): array;
 
     /**
      * Adding minor service name to current span.
