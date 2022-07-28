@@ -16,11 +16,11 @@ class NoopTracingService implements TracingServiceInterface
      * @param string $spanName
      * @param int $spanKind
      * @param \OpenTracing\SpanContext|null $parent
-     * @param float|null $timestamp
+     * @param int|null $timestamp
      *
      * @return \Romanpravda\Laravel\Tracing\Interfaces\SpanInterface
      */
-    public function startSpan(string $spanName, int $spanKind, ?SpanContextInterface $parent = null, ?float $timestamp = null): SpanInterface
+    public function startSpan(string $spanName, int $spanKind, ?SpanContextInterface $parent = null, ?int $timestamp = null): SpanInterface
     {
         return new Span(new NoopSpan());
     }
@@ -48,11 +48,11 @@ class NoopTracingService implements TracingServiceInterface
     /**
      * Ending current span.
      *
-     * @param float|null $timestamp
+     * @param int|null $timestamp
      *
      * @return void
      */
-    public function endCurrentSpan(?float $timestamp = null): void
+    public function endCurrentSpan(?int $timestamp = null): void
     {
     }
 

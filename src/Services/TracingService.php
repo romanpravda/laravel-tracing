@@ -50,11 +50,11 @@ class TracingService implements TracingServiceInterface
      * @param string $spanName
      * @param int $spanKind
      * @param \OpenTracing\SpanContext|null $parent
-     * @param float|null $timestamp
+     * @param int|null $timestamp
      *
      * @return \Romanpravda\Laravel\Tracing\Interfaces\SpanInterface
      */
-    public function startSpan(string $spanName, int $spanKind, ?SpanContextInterface $parent = null, ?float $timestamp = null): SpanInterface
+    public function startSpan(string $spanName, int $spanKind, ?SpanContextInterface $parent = null, ?int $timestamp = null): SpanInterface
     {
         if ($this->hasCurrentSpan()) {
             $parent = $this->getCurrentSpan()->getCurrent()->getContext();
@@ -65,7 +65,7 @@ class TracingService implements TracingServiceInterface
             $options['child_of'] = $parent;
         }
         if (!is_null($timestamp)) {
-            $options['start_time'] = $timestamp;
+            $options['start_time'] = $timestamp / 1000000;
         }
 
         $baseSpan = $this->tracer->startSpan($spanName, $options);
@@ -102,11 +102,11 @@ class TracingService implements TracingServiceInterface
     /**
      * Ending current span.
      *
-     * @param float|null $timestamp
+     * @param int|null $timestamp
      *
      * @return void
      */
-    public function endCurrentSpan(?float $timestamp = null): void
+    public function endCurrentSpan(?int $timestamp = null): void
     {
         if (!$this->hasCurrentSpan()) {
             return;
@@ -155,6 +155,7 @@ class TracingService implements TracingServiceInterface
         while ($this->hasCurrentSpan()) {
             $this->endCurrentSpan();
         }
+        $this->tracer->flush();
     }
 
     /**

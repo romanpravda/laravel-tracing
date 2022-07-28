@@ -9,6 +9,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Jaeger\Config;
+use Jaeger\Sampler\ConstSampler;
+use Jaeger\Sampler\ProbabilisticSampler;
 use Romanpravda\Laravel\Tracing\Interfaces\ClientTracingServiceInterface;
 use Romanpravda\Laravel\Tracing\Interfaces\TracingServiceInterface;
 use Romanpravda\Laravel\Tracing\Propogators\TraceContextPropagator;
@@ -49,6 +51,14 @@ class TracingServiceProvider extends ServiceProvider
 
             $config = Config::getInstance()->gen128bit();
             $config->setTransport(new JaegerTransport($agentHostPort));
+
+            if (Arr::get($tracingConfig, 'sampling.type', 'const') === 'probabilistic') {
+                $rate = Arr::get($tracingConfig, 'sampling.rate', 0.5);
+                $config->setSampler(new ProbabilisticSampler($rate));
+            } else {
+                $config->setSampler(new ConstSampler());
+            }
+
             /** @var \Jaeger\Jaeger $tracer */
             $tracer = $config->initTracer($serviceName);
             $tracer->setPropagator(new TraceContextPropagator());
@@ -75,8 +85,8 @@ class TracingServiceProvider extends ServiceProvider
             /** @var \Illuminate\Contracts\Config\Repository $config */
             $config = $this->app->make(ConfigRepository::class);
 
-            $endTime = microtime(true);
-            $duration = $query->time / 1000;
+            $endTime = (int) (microtime(true) * 1000000);
+            $duration = (int) ($query->time * 1000);
 
             $span = $tracer->startSpan($query->sql, SpanKind::KIND_CLIENT, null, $endTime - $duration);
             $span->getCurrent()->setTag('service.minor', $query->connectionName);

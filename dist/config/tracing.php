@@ -9,6 +9,12 @@ return [
 
     'service-name' => env('TRACING_SERVICE_NAME', 'jaeger'),
 
+    'sampling' => [
+        'type' => env('TRACING_SAMPLING', 'const'),
+
+        'rate' => 0.5,
+    ],
+
     'middleware' => [
         'excluded_paths' => [
             //
