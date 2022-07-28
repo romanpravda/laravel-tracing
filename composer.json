@@ -1,0 +1,34 @@
+{
+    "name": "romanpravda/laravel-tracing",
+    "description": "A package for tracing requests",
+    "type": "library",
+    "keywords": ["laravel-tracing"],
+    "authors": [
+        {
+            "name": "Roman Pravda",
+            "email": "rp@imagespark.ru"
+        }
+    ],
+    "license": "MIT",
+    "version": "1.0.0",
+    "require": {
+        "php": "^7.1",
+        "auxmoney/jaeger-php": "^3.0",
+        "illuminate/database": "5.7.*",
+        "illuminate/http": "5.7.*",
+        "illuminate/support": "5.7.*",
+        "psr/log": "^1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Romanpravda\\Laravel\\Tracing\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Romanpravda\\Laravel\\Tracing\\Providers\\TracingServiceProvider"
+            ]
+        }
+    }
+}
