@@ -102,7 +102,17 @@ final class TracingServiceProvider extends ServiceProvider
             $span->getCurrent()->setAttribute('service.minor', $query->connectionName);
 
             if ($query->bindings !== [] && $config->get('app.debug') === true) {
-                $bindings = implode(',', $query->bindings);
+                $bindings = implode(',', array_map(static function ($binding) {
+                    if ($binding instanceof \DateTimeInterface) {
+                        return $binding->format('Y-m-d H:i:s');
+                    }
+
+                    if (is_bool($binding)) {
+                        return (int) $binding;
+                    }
+
+                    return $binding;
+                }, $query->bindings));
                 $span->getCurrent()->setAttribute('query.bindings', $bindings);
             }
 
