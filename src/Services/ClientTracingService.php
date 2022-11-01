@@ -60,7 +60,7 @@ final class ClientTracingService implements ClientTracingServiceInterface
      */
     public function addMinorServiceNameToCurrentSpan(string $name): void
     {
-        $this->tracingService->getCurrentSpan()->getCurrent()->setAttribute('service.minor', $name);
+        $this->tracingService->getCurrentSpan()?->getCurrent()->setAttribute('service.minor', $name);
     }
 
     /**
