@@ -2,12 +2,20 @@
 
 namespace Romanpravda\Laravel\Tracing\Services;
 
+use Illuminate\Contracts\Config\Repository;
 use Romanpravda\Laravel\Tracing\Interfaces\ClientTracingServiceInterface;
 use Romanpravda\Laravel\Tracing\Interfaces\TracingServiceInterface;
 use Romanpravda\Laravel\Tracing\Span\SpanKind;
 
 class ClientTracingService implements ClientTracingServiceInterface
 {
+    /**
+     * Config's repository.
+     *
+     * @var \Illuminate\Contracts\Config\Repository
+     */
+    private $config;
+
     /**
      * Base tracing service.
      *
@@ -18,10 +26,12 @@ class ClientTracingService implements ClientTracingServiceInterface
     /**
      * ClientTracingService constructor.
      *
+     * @param \Illuminate\Contracts\Config\Repository $config
      * @param \Romanpravda\Laravel\Tracing\Interfaces\TracingServiceInterface|null $tracingService
      */
-    public function __construct(?TracingServiceInterface $tracingService = null)
+    public function __construct(Repository $config, ?TracingServiceInterface $tracingService = null)
     {
+        $this->config = $config;
         $this->tracingService = $tracingService ?? new NoopTracingService();
     }
 
@@ -103,7 +113,7 @@ class ClientTracingService implements ClientTracingServiceInterface
      */
     public function addRequestInputToCurrentSpan(array $input): void
     {
-        if ($this->tracingService->hasCurrentSpan()) {
+        if ($this->config->get('tracing.send-input', false) && $this->tracingService->hasCurrentSpan()) {
             $this->tracingService->getCurrentSpan()->getCurrent()->setTag('request.http.input', json_encode($input));
         }
     }
@@ -145,7 +155,7 @@ class ClientTracingService implements ClientTracingServiceInterface
      */
     public function addRawResponseToCurrentSpan(array $rawResponse): void
     {
-        if ($this->tracingService->hasCurrentSpan()) {
+        if ($this->config->get('tracing.send-response', false) && $this->tracingService->hasCurrentSpan()) {
             $this->tracingService->getCurrentSpan()->getCurrent()->setTag('response.http.raw', json_encode($rawResponse));
         }
     }

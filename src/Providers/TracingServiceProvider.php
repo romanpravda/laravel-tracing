@@ -15,6 +15,7 @@ use Romanpravda\Laravel\Tracing\Interfaces\ClientTracingServiceInterface;
 use Romanpravda\Laravel\Tracing\Interfaces\TracingServiceInterface;
 use Romanpravda\Laravel\Tracing\Propogators\TraceContextPropagator;
 use Romanpravda\Laravel\Tracing\Services\ClientTracingService;
+use Romanpravda\Laravel\Tracing\Services\ClientTracingServiceWithoutResponse;
 use Romanpravda\Laravel\Tracing\Services\NoopTracingService;
 use Romanpravda\Laravel\Tracing\Services\TracingService;
 use Romanpravda\Laravel\Tracing\Span\SpanKind;
@@ -69,10 +70,13 @@ class TracingServiceProvider extends ServiceProvider
         });
 
         $this->app->bind(ClientTracingServiceInterface::class, static function (Container $app) {
+            /** @var \Illuminate\Contracts\Config\Repository $configRepository */
+            $configRepository = $app->make(ConfigRepository::class);
+
             /** @var \Romanpravda\Laravel\Tracing\Interfaces\TracingServiceInterface $tracingService */
             $tracingService = $app->make(TracingServiceInterface::class);
 
-            return new ClientTracingService($tracingService);
+            return new ClientTracingService($configRepository, $tracingService);
         });
 
         $this->registerQueryListener();

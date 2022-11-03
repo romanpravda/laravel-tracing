@@ -12,8 +12,12 @@ return [
     'sampling' => [
         'type' => env('TRACING_SAMPLING', 'const'),
 
-        'rate' => 0.5,
+        'rate' => env('TRACING_SAMPLING_RATE', 0.5),
     ],
+
+    'send-input' => env('TRACING_SEND_INPUT', false),
+
+    'send-response' => env('TRACING_SEND_RESPONSE', false),
 
     'middleware' => [
         'excluded_paths' => [

@@ -89,7 +89,7 @@ class TraceRequests
         $span->getCurrent()->setTag('request.net.peer.ip', $request->ip() ?? 'not passed');
         $span->getCurrent()->setTag('request.net.peer.port', isset($_SERVER['REMOTE_PORT']) ? ((string) $_SERVER['REMOTE_PORT']) : 'not passed');
 
-        if (in_array($request->headers->get('Content_Type'), $this->config->get('tracing.middleware.payload.content_types'), true)) {
+        if ($this->config->get('tracing.send-input', false) && in_array($request->headers->get('Content_Type'), $this->config->get('tracing.middleware.payload.content_types'), true)) {
             $span->getCurrent()->setTag('request.http.input', json_encode($this->tracingService->filterInput($request->input())));
         }
     }
@@ -113,7 +113,7 @@ class TraceRequests
         $span->getCurrent()->setTag('response.http.status_code', $response->getStatusCode());
         $span->getCurrent()->setTag('response.http.headers', $this->tracingService->transformedHeaders($this->tracingService->filterHeaders($response->headers->all())));
 
-        if (in_array($response->headers->get('Content_Type'), $this->config->get('tracing.middleware.payload.content_types'), true)) {
+        if ($this->config->get('tracing.send-response', false) && in_array($response->headers->get('Content_Type'), $this->config->get('tracing.middleware.payload.content_types'), true)) {
             $span->getCurrent()->setTag('response.content', $response->content());
         }
     }

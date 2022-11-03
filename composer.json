@@ -10,14 +10,14 @@
         }
     ],
     "license": "MIT",
-    "version": "1.0.0",
     "require": {
         "php": "^7.1",
         "auxmoney/jaeger-php": "^3.0",
         "illuminate/database": "^5.6",
         "illuminate/http": "^5.6",
         "illuminate/support": "^5.6",
-        "psr/log": "^1.1"
+        "psr/log": "^1.1",
+        "ext-json": "*"
     },
     "autoload": {
         "psr-4": {
@@ -30,5 +30,8 @@
                 "Romanpravda\\Laravel\\Tracing\\Providers\\TracingServiceProvider"
             ]
         }
+    },
+    "config": {
+        "sort-packages": true
     }
 }
