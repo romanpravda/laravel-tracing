@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Romanpravda\Laravel\Tracing\Services;
 
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\Context\Context;
 use Romanpravda\Laravel\Tracing\Interfaces\ClientTracingServiceInterface;
@@ -14,9 +15,11 @@ final class ClientTracingService implements ClientTracingServiceInterface
     /**
      * ClientTracingService constructor.
      *
+     * @param \Illuminate\Contracts\Config\Repository $config
      * @param \Romanpravda\Laravel\Tracing\Interfaces\TracingServiceInterface $tracingService
      */
     public function __construct(
+        private readonly ConfigRepository $config,
         private readonly TracingServiceInterface $tracingService = new NoopTracingService(),
     )
     {
@@ -102,7 +105,9 @@ final class ClientTracingService implements ClientTracingServiceInterface
      */
     public function addRequestInputToCurrentSpan(array $input): void
     {
-        $this->tracingService->getCurrentSpan()?->getCurrent()->setAttribute('request.http.input', json_encode($input, JSON_THROW_ON_ERROR));
+        if ($this->config->get('tracing.send-input', false)) {
+            $this->tracingService->getCurrentSpan()?->getCurrent()->setAttribute('request.http.input', json_encode($input, JSON_THROW_ON_ERROR));
+        }
     }
 
     /**
@@ -142,7 +147,9 @@ final class ClientTracingService implements ClientTracingServiceInterface
      */
     public function addRawResponseToCurrentSpan(array $rawResponse): void
     {
-        $this->tracingService->getCurrentSpan()?->getCurrent()->setAttribute('response.http.raw', json_encode($rawResponse, JSON_THROW_ON_ERROR));
+        if ($this->config->get('tracing.send-response', false)) {
+            $this->tracingService->getCurrentSpan()?->getCurrent()->setAttribute('response.http.raw', json_encode($rawResponse, JSON_THROW_ON_ERROR));
+        }
     }
 
     /**

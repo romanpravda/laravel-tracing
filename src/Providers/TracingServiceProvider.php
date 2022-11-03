@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Romanpravda\Laravel\Tracing\Providers;
 
-use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Arr;
@@ -41,7 +41,7 @@ final class TracingServiceProvider extends ServiceProvider
 
         $this->app->singleton(TracingServiceInterface::class, static function (Application $app) {
             /** @var \Illuminate\Contracts\Config\Repository $configRepository */
-            $configRepository = $app->make(Repository::class);
+            $configRepository = $app->make(ConfigRepository::class);
             $tracingConfig = $configRepository->get('tracing');
 
             if (!Arr::get($tracingConfig, 'enabled', false)) {
@@ -70,10 +70,13 @@ final class TracingServiceProvider extends ServiceProvider
         });
 
         $this->app->bind(ClientTracingServiceInterface::class, static function (Application $app) {
+            /** @var \Illuminate\Contracts\Config\Repository $configRepository */
+            $configRepository = $app->make(ConfigRepository::class);
+
             /** @var \Romanpravda\Laravel\Tracing\Interfaces\TracingServiceInterface $tracingService */
             $tracingService = $app->make(TracingServiceInterface::class);
 
-            return new ClientTracingService($tracingService);
+            return new ClientTracingService($configRepository, $tracingService);
         });
 
         $this->registerQueryListener();
@@ -91,7 +94,7 @@ final class TracingServiceProvider extends ServiceProvider
             $tracer = $this->app->make(TracingServiceInterface::class);
 
             /** @var \Illuminate\Contracts\Config\Repository $config */
-            $config = $this->app->make(Repository::class);
+            $config = $this->app->make(ConfigRepository::class);
 
             $endTime = ClockFactory::getDefault()->now();
             $duration = (int) round($query->time * 1000000);
