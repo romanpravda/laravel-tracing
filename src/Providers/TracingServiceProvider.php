@@ -3,7 +3,7 @@
 namespace Romanpravda\Laravel\Tracing\Providers;
 
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
-use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -26,6 +26,8 @@ class TracingServiceProvider extends ServiceProvider
      * Register any application services.
      *
      * @return void
+     *
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function register(): void
     {
@@ -34,7 +36,7 @@ class TracingServiceProvider extends ServiceProvider
             'tracing'
         );
 
-        $this->app->singleton(TracingServiceInterface::class, static function (Application $app) {
+        $this->app->singleton(TracingServiceInterface::class, static function (Container $app) {
             /** @var \Illuminate\Contracts\Config\Repository $configRepository */
             $configRepository = $app->make(ConfigRepository::class);
             $tracingConfig = $configRepository->get('tracing');
@@ -66,7 +68,7 @@ class TracingServiceProvider extends ServiceProvider
             return new TracingService($tracer, $tracingConfig);
         });
 
-        $this->app->bind(ClientTracingServiceInterface::class, static function (Application $app) {
+        $this->app->bind(ClientTracingServiceInterface::class, static function (Container $app) {
             /** @var \Romanpravda\Laravel\Tracing\Interfaces\TracingServiceInterface $tracingService */
             $tracingService = $app->make(TracingServiceInterface::class);
 
@@ -80,6 +82,8 @@ class TracingServiceProvider extends ServiceProvider
      * Register DB Query listener.
      *
      * @return void
+     *
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function registerQueryListener(): void
     {
