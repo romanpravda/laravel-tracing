@@ -27,7 +27,7 @@ return [
         ],
 
         'allowed_headers' => [
-            '*'
+            '*',
         ],
 
         'sensitive_headers' => [

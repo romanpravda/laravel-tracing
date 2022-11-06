@@ -22,6 +22,7 @@
         "ext-json": "*"
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.13",
         "phpstan/phpstan": "^1.9"
     },
     "autoload": {
@@ -37,6 +38,7 @@
         }
     },
     "scripts": {
+        "phpcs": "./vendor/bin/php-cs-fixer",
         "phpstan": "./vendor/bin/phpstan analyse -c phpstan.neon"
     },
     "config": {

@@ -18,8 +18,7 @@ final class Span implements SpanInterface
     public function __construct(
         private readonly BaseSpanInterface $current,
         private readonly ?SpanInterface $parent = null,
-    )
-    {
+    ) {
     }
 
     /**

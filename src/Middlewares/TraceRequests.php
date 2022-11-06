@@ -24,8 +24,7 @@ final class TraceRequests
     public function __construct(
         private readonly TracingServiceInterface $tracingService,
         private readonly Repository $config,
-    )
-    {
+    ) {
     }
 
     /**
@@ -90,7 +89,7 @@ final class TraceRequests
         /** @var array<string> $contentTypesFromConfig */
         $contentTypesFromConfig = $this->config->get('tracing.middleware.payload.content_types');
         $contentTypeFromHeaders = $headers['Content-Type'] ?? [];
-        if ($this->config->get('tracing.send-input', false) && in_array(is_array($contentTypeFromHeaders) ? $contentTypeFromHeaders : [$contentTypeFromHeaders] , $contentTypesFromConfig, true)) {
+        if ($this->config->get('tracing.send-input', false) && in_array(is_array($contentTypeFromHeaders) ? $contentTypeFromHeaders : [$contentTypeFromHeaders], $contentTypesFromConfig, true)) {
             /** @var array $requestInput */
             $requestInput = $request->input();
             $span->getCurrent()->setAttribute('request.http.input', json_encode($this->tracingService->filterInput($requestInput), JSON_THROW_ON_ERROR));

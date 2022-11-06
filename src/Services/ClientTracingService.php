@@ -21,8 +21,7 @@ final class ClientTracingService implements ClientTracingServiceInterface
     public function __construct(
         private readonly ConfigRepository $config,
         private readonly TracingServiceInterface $tracingService = new NoopTracingService(),
-    )
-    {
+    ) {
     }
 
     /**
