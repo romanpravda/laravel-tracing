@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Romanpravda\Laravel\Tracing\Providers;
 
+use DateTimeInterface;
 use Illuminate\Contracts\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Events\QueryExecuted;
@@ -42,21 +43,26 @@ final class TracingServiceProvider extends ServiceProvider
         $this->app->singleton(TracingServiceInterface::class, static function (Application $app) {
             /** @var \Illuminate\Contracts\Config\Repository $configRepository */
             $configRepository = $app->make(ConfigRepository::class);
+            /** @var array $tracingConfig */
             $tracingConfig = $configRepository->get('tracing');
 
             if (!Arr::get($tracingConfig, 'enabled', false)) {
                 return new NoopTracingService();
             }
 
+            /** @var string $agentHost */
             $agentHost = Arr::get($tracingConfig, 'host');
+            /** @var int $agentPort */
             $agentPort = Arr::get($tracingConfig, 'port');
             $agentHostPort = sprintf('%s:%d', $agentHost, $agentPort);
 
+            /** @var string $serviceName */
             $serviceName = Arr::get($tracingConfig, 'service-name', 'jaeger');
 
             if (Arr::get($tracingConfig, 'sampling.type', 'const') === 'probabilistic') {
-                $rate = (float) Arr::get($tracingConfig, 'sampling.rate', 0.5);
-                $sampler = new TraceIdRatioBasedSampler($rate);
+                /** @var float|string $rate */
+                $rate = Arr::get($tracingConfig, 'sampling.rate', 0.5);
+                $sampler = new TraceIdRatioBasedSampler((float) $rate);
             } else {
                 $sampler = new AlwaysOnSampler();
             }
@@ -106,7 +112,7 @@ final class TracingServiceProvider extends ServiceProvider
 
             if ($query->bindings !== [] && $config->get('app.debug') === true) {
                 $bindings = implode(',', array_map(static function ($binding) {
-                    if ($binding instanceof \DateTimeInterface) {
+                    if ($binding instanceof DateTimeInterface) {
                         return $binding->format('Y-m-d H:i:s');
                     }
 
@@ -129,7 +135,7 @@ final class TracingServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->publishes([
-            __DIR__ . '/../../dist/config/tracing.php' => config_path('tracing.php'),
+            __DIR__ . '/../../dist/config/tracing.php' => $this->app->configPath('tracing.php'),
         ]);
     }
 }

@@ -62,22 +62,22 @@ final class NoopTracingService implements TracingServiceInterface
      * Writing context to given data.
      *
      * @param \OpenTelemetry\Context\Context $context
-     * @param $carrier
+     * @param array<string, array<int, string|null>|string|null> $carrier
      *
      * @return void
      */
-    public function inject(Context $context, &$carrier): void
+    public function inject(Context $context, array &$carrier): void
     {
     }
 
     /**
      * Retrieving context from given data.
      *
-     * @param $carrier
+     * @param array<string, array<int, string|null>|string|null> $carrier
      *
      * @return \OpenTelemetry\Context\Context
      */
-    public function extract($carrier): Context
+    public function extract(array $carrier): Context
     {
         return Context::getCurrent();
     }
@@ -94,9 +94,9 @@ final class NoopTracingService implements TracingServiceInterface
     /**
      * Filtering and hiding headers.
      *
-     * @param array $headers
+     * @param array<string, array<int, string|null>|string|null> $headers
      *
-     * @return array
+     * @return array<string, array<int, string|null>|string|null>
      */
     public function filterHeaders(array $headers = []): array
     {
@@ -118,7 +118,7 @@ final class NoopTracingService implements TracingServiceInterface
     /**
      * Transforming headers.
      *
-     * @param array $headers
+     * @param array<string, array<int, string|null>>|array<int, string|null> $headers
      *
      * @return string
      */

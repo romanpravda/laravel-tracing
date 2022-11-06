@@ -40,9 +40,9 @@ final class ClientTracingService implements ClientTracingServiceInterface
     /**
      * Inject current span context into headers.
      *
-     * @param array $headers
+     * @param array<string, array<int, string|null>|string|null> $headers
      *
-     * @return array
+     * @return array<string, array<int, string|null>|string|null>
      */
     public function injectSpanContextIntoHeaders(array $headers = []): array
     {
@@ -69,7 +69,7 @@ final class ClientTracingService implements ClientTracingServiceInterface
     /**
      * Adding request headers to current span.
      *
-     * @param array $headers
+     * @param array<string, array<int, string|null>|string|null> $headers
      *
      * @return void
      *
@@ -125,7 +125,7 @@ final class ClientTracingService implements ClientTracingServiceInterface
     /**
      * Adding response headers to current span.
      *
-     * @param array $headers
+     * @param array<string, array<int, string|null>|string|null> $headers
      *
      * @return void
      *

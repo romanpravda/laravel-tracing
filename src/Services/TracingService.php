@@ -43,6 +43,7 @@ final class TracingService implements TracingServiceInterface
         private readonly TextMapPropagatorInterface $propagator,
         private readonly array $tracingConfig = [],
     ) {
+        /** @var string $serviceName */
         $serviceName = Arr::get($this->tracingConfig, 'service-name', 'jaeger');
 
         $this->tracer = $this->tracerProvider->getTracer($serviceName);
@@ -60,12 +61,14 @@ final class TracingService implements TracingServiceInterface
      */
     public function startSpan(string $spanName, Context $context, int $spanKind, ?float $timestamp = null): SpanInterface
     {
+        $currentSpan = $this->getCurrentSpan();
+
         $spanBuilder = $this->tracer->spanBuilder($spanName)->setSpanKind($spanKind);
         if (!is_null($timestamp)) {
             $spanBuilder->setStartTimestamp((int) $timestamp);
         }
-        if ($this->hasCurrentSpan()) {
-            $parentContext = $this->getCurrentSpan()?->getCurrent()->storeInContext($context);
+        if (!is_null($currentSpan)) {
+            $parentContext = $currentSpan->getCurrent()->storeInContext($context);
             $spanBuilder->setParent($parentContext);
         } elseif (is_null($context->get(SpanContextKey::instance()))) {
             $spanBuilder->setNoParent();
@@ -73,9 +76,12 @@ final class TracingService implements TracingServiceInterface
             $spanBuilder->setParent($context);
         }
         $baseSpan = $spanBuilder->startSpan();
-        $baseSpan->setAttribute('service.major', Arr::get($this->tracingConfig, 'service-name', 'jaeger'));
 
-        $span = new Span($baseSpan, $this->getCurrentSpan());
+        /** @var string $serviceName */
+        $serviceName = Arr::get($this->tracingConfig, 'service-name', 'jaeger');
+        $baseSpan->setAttribute('service.major', $serviceName);
+
+        $span = new Span($baseSpan, $currentSpan);
         $this->currentSpan = $span;
 
         return $span;
@@ -123,11 +129,11 @@ final class TracingService implements TracingServiceInterface
      * Writing context to given data.
      *
      * @param \OpenTelemetry\Context\Context $context
-     * @param $carrier
+     * @param array<string, array<int, string|null>|string|null> $carrier
      *
      * @return void
      */
-    public function inject(Context $context, &$carrier): void
+    public function inject(Context $context, array &$carrier): void
     {
         $this->propagator->inject($carrier, null, $context);
     }
@@ -135,11 +141,11 @@ final class TracingService implements TracingServiceInterface
     /**
      * Retrieving context from given data.
      *
-     * @param $carrier
+     * @param array<string, array<int, string|null>|string|null> $carrier
      *
      * @return \OpenTelemetry\Context\Context
      */
-    public function extract($carrier): Context
+    public function extract(array $carrier): Context
     {
         return $this->propagator->extract($carrier);
     }
@@ -159,9 +165,9 @@ final class TracingService implements TracingServiceInterface
     /**
      * Filtering and hiding headers.
      *
-     * @param array $headers
+     * @param array<string, array<int, string|null>|string|null> $headers
      *
-     * @return array
+     * @return array<string, array<int, string|null>|string|null>
      */
     public function filterHeaders(array $headers = []): array
     {
@@ -183,7 +189,7 @@ final class TracingService implements TracingServiceInterface
     /**
      * Transforming headers.
      *
-     * @param array $headers
+     * @param array<string, array<int, string|null>|string|null> $headers
      *
      * @return string
      */
@@ -221,6 +227,7 @@ final class TracingService implements TracingServiceInterface
      */
     private function filterAllowedHeaders(Collection $headers): Collection
     {
+        /** @var array<string> $allowedHeaders */
         $allowedHeaders = Arr::get($this->tracingConfig, 'middleware.allowed_headers');
 
         if (in_array('*', $allowedHeaders, true)) {
@@ -243,6 +250,7 @@ final class TracingService implements TracingServiceInterface
      */
     private function hideSensitiveHeaders(Collection $headers): Collection
     {
+        /** @var array<string> $sensitiveHeaders */
         $sensitiveHeaders = Arr::get($this->tracingConfig, 'middleware.sensitive_headers');
 
         $normalizedHeaders = array_map('strtolower', $sensitiveHeaders);
@@ -263,6 +271,7 @@ final class TracingService implements TracingServiceInterface
      */
     private function hideSensitiveInput(Collection $input): Collection
     {
+        /** @var array<string> $sensitiveInput */
         $sensitiveInput = Arr::get($this->tracingConfig, 'middleware.sensitive_input');
 
         $normalizedInput = array_map('strtolower', $sensitiveInput);

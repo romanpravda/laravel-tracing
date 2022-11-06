@@ -1,0 +1,96 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Method Romanpravda\\\\Laravel\\\\Tracing\\\\Interfaces\\\\ClientTracingServiceInterface\\:\\:addRawResponseToCurrentSpan\\(\\) has parameter \\$rawResponse with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Interfaces/ClientTracingServiceInterface.php
+
+		-
+			message: "#^Method Romanpravda\\\\Laravel\\\\Tracing\\\\Interfaces\\\\ClientTracingServiceInterface\\:\\:addRequestInputToCurrentSpan\\(\\) has parameter \\$input with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Interfaces/ClientTracingServiceInterface.php
+
+		-
+			message: "#^Method Romanpravda\\\\Laravel\\\\Tracing\\\\Interfaces\\\\ClientTracingServiceInterface\\:\\:addRequestQueryToCurrentSpan\\(\\) has parameter \\$query with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Interfaces/ClientTracingServiceInterface.php
+
+		-
+			message: "#^Method Romanpravda\\\\Laravel\\\\Tracing\\\\Interfaces\\\\TracingServiceInterface\\:\\:filterInput\\(\\) has parameter \\$input with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Interfaces/TracingServiceInterface.php
+
+		-
+			message: "#^Method Romanpravda\\\\Laravel\\\\Tracing\\\\Interfaces\\\\TracingServiceInterface\\:\\:filterInput\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Interfaces/TracingServiceInterface.php
+
+		-
+			message: "#^PHPDoc tag @var for variable \\$requestInput has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Middlewares/TraceRequests.php
+
+		-
+			message: "#^Parameter \\#1 \\$code of method OpenTelemetry\\\\API\\\\Trace\\\\SpanInterface\\:\\:setStatus\\(\\) expects 'Error'\\|'Ok'\\|'Unset', string given\\.$#"
+			count: 1
+			path: src/Middlewares/TraceRequests.php
+
+		-
+			message: "#^PHPDoc tag @var for variable \\$tracingConfig has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Providers/TracingServiceProvider.php
+
+		-
+			message: "#^Method Romanpravda\\\\Laravel\\\\Tracing\\\\Services\\\\ClientTracingService\\:\\:addRawResponseToCurrentSpan\\(\\) has parameter \\$rawResponse with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Services/ClientTracingService.php
+
+		-
+			message: "#^Method Romanpravda\\\\Laravel\\\\Tracing\\\\Services\\\\ClientTracingService\\:\\:addRequestInputToCurrentSpan\\(\\) has parameter \\$input with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Services/ClientTracingService.php
+
+		-
+			message: "#^Method Romanpravda\\\\Laravel\\\\Tracing\\\\Services\\\\ClientTracingService\\:\\:addRequestQueryToCurrentSpan\\(\\) has parameter \\$query with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Services/ClientTracingService.php
+
+		-
+			message: "#^Method Romanpravda\\\\Laravel\\\\Tracing\\\\Services\\\\NoopTracingService\\:\\:filterInput\\(\\) has parameter \\$input with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Services/NoopTracingService.php
+
+		-
+			message: "#^Method Romanpravda\\\\Laravel\\\\Tracing\\\\Services\\\\NoopTracingService\\:\\:filterInput\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Services/NoopTracingService.php
+
+		-
+			message: "#^Method Romanpravda\\\\Laravel\\\\Tracing\\\\Services\\\\TracingService\\:\\:__construct\\(\\) has parameter \\$tracingConfig with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Services/TracingService.php
+
+		-
+			message: "#^Method Romanpravda\\\\Laravel\\\\Tracing\\\\Services\\\\TracingService\\:\\:filterHeaders\\(\\) should return array\\<string, array\\<int, string\\|null\\>\\|string\\|null\\> but returns array\\.$#"
+			count: 1
+			path: src/Services/TracingService.php
+
+		-
+			message: "#^Method Romanpravda\\\\Laravel\\\\Tracing\\\\Services\\\\TracingService\\:\\:filterInput\\(\\) has parameter \\$input with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Services/TracingService.php
+
+		-
+			message: "#^Method Romanpravda\\\\Laravel\\\\Tracing\\\\Services\\\\TracingService\\:\\:filterInput\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Services/TracingService.php
+
+		-
+			message: "#^Parameter \\#1 \\$spanKind of method OpenTelemetry\\\\API\\\\Trace\\\\SpanBuilderInterface\\:\\:setSpanKind\\(\\) expects 0\\|1\\|2\\|3\\|4, int given\\.$#"
+			count: 1
+			path: src/Services/TracingService.php
+
+		-
+			message: "#^Parameter \\#1 \\$spanName of method OpenTelemetry\\\\API\\\\Trace\\\\TracerInterface\\:\\:spanBuilder\\(\\) expects non\\-empty\\-string, string given\\.$#"
+			count: 1
+			path: src/Services/TracingService.php

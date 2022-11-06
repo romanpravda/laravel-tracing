@@ -18,9 +18,9 @@ interface ClientTracingServiceInterface
     /**
      * Inject current span context into headers.
      *
-     * @param array $headers
+     * @param array<string, array<int, string|null>|string|null> $headers
      *
-     * @return array
+     * @return array<string, array<int, string|null>|string|null>
      */
     public function injectSpanContextIntoHeaders(array $headers = []): array;
 
@@ -36,7 +36,7 @@ interface ClientTracingServiceInterface
     /**
      * Adding request headers to current span.
      *
-     * @param array $headers
+     * @param array<string, array<int, string|null>|string|null> $headers
      *
      * @return void
      *
@@ -47,7 +47,7 @@ interface ClientTracingServiceInterface
     /**
      * Adding request query to current span.
      *
-     * @param array $query
+     * @param array<string, scalar|array> $query
      *
      * @return void
      *
@@ -58,7 +58,7 @@ interface ClientTracingServiceInterface
     /**
      * Adding request input to current span.
      *
-     * @param array $input
+     * @param array<string, scalar|array> $input
      *
      * @return void
      *
@@ -78,7 +78,7 @@ interface ClientTracingServiceInterface
     /**
      * Adding response headers to current span.
      *
-     * @param array $headers
+     * @param array<string, array<int, string|null>|string|null> $headers
      *
      * @return void
      *
@@ -89,7 +89,7 @@ interface ClientTracingServiceInterface
     /**
      * Adding raw response to current span.
      *
-     * @param array $rawResponse
+     * @param array<string, scalar|array> $rawResponse
      *
      * @return void
      *
