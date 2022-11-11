@@ -9,6 +9,7 @@ use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\Context\Context;
 use Romanpravda\Laravel\Tracing\Interfaces\ClientTracingServiceInterface;
 use Romanpravda\Laravel\Tracing\Interfaces\TracingServiceInterface;
+use Romanpravda\Laravel\Tracing\Repositories\NoopConfigRepository;
 
 final class ClientTracingService implements ClientTracingServiceInterface
 {
@@ -19,7 +20,7 @@ final class ClientTracingService implements ClientTracingServiceInterface
      * @param \Romanpravda\Laravel\Tracing\Interfaces\TracingServiceInterface $tracingService
      */
     public function __construct(
-        private readonly ConfigRepository $config,
+        private readonly ConfigRepository $config = new NoopConfigRepository(),
         private readonly TracingServiceInterface $tracingService = new NoopTracingService(),
     ) {
     }

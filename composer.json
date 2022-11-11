@@ -38,7 +38,7 @@
         }
     },
     "scripts": {
-        "phpcs": "./vendor/bin/php-cs-fixer",
+        "phpcs": "./vendor/bin/php-cs-fixer fix --dry-run",
         "phpstan": "./vendor/bin/phpstan analyse -c phpstan.neon"
     },
     "config": {

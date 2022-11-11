@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__)
-    ->exclude('vendor')
-;
+    ->exclude('vendor');
 
 $config = new PhpCsFixer\Config();
 
@@ -14,5 +13,4 @@ return $config->setRules([
     '@PHP82Migration' => true,
 ])
     ->setFinder($finder)
-    ->setUsingCache(false)
-    ;
+    ->setUsingCache(false);
